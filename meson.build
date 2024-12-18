@@ -1,16 +1,20 @@
 project('pango', 'c', 'cpp',
-        version: '1.54.0',
+        version: '1.56.0',
         license: 'LGPLv2.1+',
         default_options: [
           'buildtype=debugoptimized',
           'warning_level=1',
-          # We only need c99, but glib needs GNU-specific features
-          # https://github.com/mesonbuild/meson/issues/2289
-          'c_std=gnu99',
+          'c_std=gnu11',
         ],
-        meson_version : '>= 0.63.0')
+        meson_version : '>= 1.2.0')
 
-add_project_arguments([ '-D_POSIX_C_SOURCE=200809L', '-D_POSIX_THREAD_SAFE_FUNCTIONS', '-D_GNU_SOURCE', ], language: 'c')
+add_project_arguments([
+    '-D_POSIX_C_SOURCE=200809L',
+    '-D_POSIX_THREAD_SAFE_FUNCTIONS',
+    '-D_GNU_SOURCE',
+  ],
+  language: 'c'
+)
 
 pango_prefix = get_option('prefix')
 pango_libdir = join_paths(pango_prefix, get_option('libdir'))
@@ -48,6 +52,18 @@ pango_osxversion = [osx_current, '@0@.@1@.0'.format(osx_current, pango_interface
 cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')
 host_system = host_machine.system()
+
+if host_system == 'windows'
+  add_project_arguments('-D_WIN32_WINNT=_WIN32_WINNT_WIN10', language: 'c')
+endif
+
+# Keep in sync with glib_req_version
+add_project_arguments([
+    '-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_70',
+    '-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_70',
+  ],
+  language: 'c'
+)
 
 # Compiler and linker flags
 common_cflags = []
@@ -197,11 +213,11 @@ endif
 # Dependencies
 pango_deps = []
 
-glib_req_version = '>= 2.62'
+glib_req_version = '>= 2.70'
 fribidi_req_version = '>= 1.0.6'
 libthai_req_version = '>= 0.1.9'
-harfbuzz_req_version = '>= 2.6.0'
-fontconfig_req_version = '>= 2.13.0'
+harfbuzz_req_version = '>= 8.4.0'
+fontconfig_req_version = '>= 2.15.0'
 xft_req_version = '>= 2.0.0'
 cairo_req_version = '>= 1.12.10'
 
@@ -346,10 +362,8 @@ if host_system == 'darwin'
 endif
 
 # Check for dwrite_3.h (from more recent Windows SDK or mingw-w64)
-if host_system == 'windows'
-  if cpp.has_header('dwrite_3.h')
-    pango_conf.set('HAVE_DWRITE_3_H', 1)
-  endif
+if host_system == 'windows' and not cpp.has_header('dwrite_3.h')
+  error('Windows backend enabled but dwrite_3.h not found.')
 endif
 
 # Enable cairo-ft with FreeType and FontConfig support if
@@ -557,13 +571,13 @@ if not meson.is_subproject()
   meson.add_dist_script('build-aux/meson/dist-docs.py')
 endif
 
-summary('Font backends', pango_font_backends)
+summary('Fontconfig', pango_font_backends.contains('freetype'), section: 'Font backends')
+summary('DirectWrite', pango_font_backends.contains('win32'), section: 'Font backends')
+summary('CoreText', pango_font_backends.contains('quartz'), section: 'Font backends')
 
-summary('Cairo support', cairo_dep.found(), section: 'Features')
-summary('Fontconfig support', fontconfig_dep.found(), section: 'Features')
-summary('FreeType support', freetype_dep.found(), section: 'Features')
-summary('Thai support', thai_dep.found(), section: 'Features')
-summary('Sysprof support', libsysprof_capture_dep.found(), section: 'Features')
+summary('Cairo', cairo_dep.found(), section: 'Features')
+summary('Thai', thai_dep.found(), section: 'Features')
+summary('Sysprof', libsysprof_capture_dep.found(), section: 'Features')
 
 summary('Compiler', cc.get_id(), section: 'Toolchain')
 summary('Linker', cc.get_linker_id(), section: 'Toolchain')
