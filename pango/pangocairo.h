@@ -207,6 +207,10 @@ void pango_cairo_layout_line_path  (cairo_t          *cr,
 PANGO_AVAILABLE_IN_1_10
 void pango_cairo_layout_path       (cairo_t          *cr,
 				    PangoLayout      *layout);
+PANGO_AVAILABLE_IN_1_58
+void pango_cairo_layout_path_for_components (cairo_t              *cr,
+                                             PangoLayout          *layout,
+                                             PangoRenderComponent  components);
 
 PANGO_AVAILABLE_IN_1_14
 void pango_cairo_error_underline_path (cairo_t       *cr,
@@ -214,6 +218,9 @@ void pango_cairo_error_underline_path (cairo_t       *cr,
 				       double         y,
 				       double         width,
 				       double         height);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoCairoFont, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoCairoFontMap, g_object_unref)
 
 G_END_DECLS
 

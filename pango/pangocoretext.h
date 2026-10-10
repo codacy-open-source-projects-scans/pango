@@ -24,7 +24,7 @@
 #define __PANGOCORETEXT_H__
 
 #include <pango/pango.h>
-#include <Carbon/Carbon.h>
+#include <CoreText/CoreText.h>
 
 G_BEGIN_DECLS
 
@@ -41,6 +41,8 @@ GType      pango_core_text_font_get_type         (void) G_GNUC_CONST;
 
 PANGO_AVAILABLE_IN_1_24
 CTFontRef  pango_core_text_font_get_ctfont  (PangoCoreTextFont *font);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoCoreTextFont, g_object_unref)
 
 G_END_DECLS
 

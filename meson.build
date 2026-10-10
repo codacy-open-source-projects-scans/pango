@@ -1,5 +1,5 @@
 project('pango', 'c', 'cpp',
-        version: '1.57.2',
+        version: '1.58.2',
         license: 'LGPLv2.1+',
         default_options: [
           'buildtype=debugoptimized',
@@ -209,13 +209,13 @@ endif
 pango_deps = []
 
 glib_major_req = 2
-glib_minor_req = 82
+glib_minor_req = 88
 
 glib_req       = '>= @0@.@1@'.format(glib_major_req, glib_minor_req)
 gi_req         = '>= 1.83.2'
 fribidi_req    = '>= 1.0.6'
 libthai_req    = '>= 0.1.9'
-harfbuzz_req   = '>= 8.4.0'
+harfbuzz_req   = '>= 11.0.0'
 fontconfig_req = '>= 2.17.0'
 xft_req        = '>= 2.0.0'
 cairo_req      = '>= 1.18.0'
